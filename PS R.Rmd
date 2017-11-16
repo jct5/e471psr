@@ -12,20 +12,32 @@ library(foreign)
 
 ## a.)
 ```{r a, echo=TRUE}
-curve(13.96-.07*x, from=0, to=10, ylab = "y")
+curve(13.96-.07*x, from=0, to=18, ylab = "y")
 ```
+
+The econometrician proposed that there is a linear relationship between and individual's years of education and an individual's distance to the nearest university. 
+
+The proposed model, seen above, suggests that an individual with 0 years of education is expected to be 139.6 miles away from the nearest college. For every addtional year of education, we expect the individual to be .7 miles closer to the nearest college. (Note: distance is measured in 10's of miles, explaining why the model uses 13.96 and .07.)
+
 
 ## b.)
 ```{r b, echo=TRUE}
 par(mfrow=c(1,2))
-curve((13.68-.05*x), from=0, to=10, ylab = "y")
-curve(14.57-.08*x, from=0, to=10, ylab = "y", col= "red")
+curve((13.68-.05*x), from=0, to=18, ylab = "y", col="red")
+curve(14.57-.08*x, from=0, to=18, ylab = "y", col= "blue")
 ```
 
+For low income individuals, we expect individuals with 0 years of expeience to be 136.8 miles from the nearest college. For every additional year of education, we expect the individual to be .5 miles closer to the nearest university. This is illustrated with the left graph.
+
+For high income individuals, we expect individuals with 0 years of expeience to be 145.7 miles from the nearest college. For every additional year of education, we expect the individual to be .8 miles closer to the nearest university. This is illustrated with the right graph.
+
+
 ## c.)
+
 ```{r c, echo=TRUE}
 
 ```
+
 
 ## d.)
 ```{r d, echo=TRUE}
@@ -33,25 +45,42 @@ CollDist = read.dta("CollegeDistance.dta")
 head(CollDist)
 ```
 
+
 ## e.)
-```{r e, echo=TRUE}
+By looking at the data, we see that (Y,X1,X2) corresponds to the (ed,dist,incomehi) variables.
+
+Below are three scatterplots that illustrate the relationship between these variables. 
+
+```{r e1, echo=TRUE}
 library(ggplot2)
 Y = CollDist$ed
 X1 = CollDist$dist
-X2 = CollDist$incomehi
+X2 = as.factor(CollDist$incomehi)
 
 data = data.frame(Education=Y, Distance=X1, IncomeHi=X2)
-ggplot(data, aes(y=Education, x=Distance, color=IncomeHi)) + geom_point()
+ggplot(data, aes(y=Education, x=Distance, color=IncomeHi)) + geom_point() + ggtitle("Distance vs Education")
 
-plot(ed~dist,data=CollDist)
+
+ggplot(subset(data, IncomeHi==0), aes(y=Education, x=Distance)) + geom_point(color="red") + ggtitle("Distance vs Education for Low Income Individuals")
+
+ggplot(subset(data, IncomeHi==1), aes(y=Education, x=Distance)) + geom_point(color="blue") + ggtitle("Distance vs Education for High Income Individuals")
+```
+
+The first graph was slightly cluttered, so I created two different graphs, the first for low income individuals and the second for high income individuals.
+
+Below are the same graphs with the proposed models overlaid.
+
+```{r e2, echo=TRUE}
+plot(ed~dist,data=CollDist, main="Distance vs Educaion")
 curve(13.96-.07*x, ylab = "y", add=TRUE)
 
-plot(ed~dist,data=subset(CollDist, incomehi==0))
-curve((13.68-.05*x),ylab = "y", add=TRUE)
+plot(ed~dist,data=subset(CollDist, incomehi==0), col ="red", main ="Distance vs Education for Low Income Individuals")
+curve((13.68-.05*x),ylab = "y", add=TRUE, col ="red")
 
-plot(ed~dist,data=subset(CollDist, incomehi==1))
-curve(14.57-.08*x, ylab = "y", col= "red", add=TRUE)
+plot(ed~dist,data=subset(CollDist, incomehi==1), col= "blue", main ="Distance vs Education for High Income Individuals")
+curve(14.57-.08*x, ylab = "y", col= "blue", add=TRUE)
 ```
+
 
 ## f.)
 ```{r f, echo=TRUE}
@@ -61,6 +90,9 @@ Y = as.matrix(CollDist$ed)
 Beta_hat = solve((t(X)%*%X))%*%t(X)%*%Y
 Beta_hat
 ```
+
+Using both lm and "by hand", we get the same OLS estimator for beta. These values also match the proposed model in (a).
+
 
 ## g.)
 ```{r g, echo=TRUE}
@@ -77,15 +109,21 @@ Beta_hat = solve((t(X)%*%X))%*%t(X)%*%Y
 Beta_hat
 ```
 
+Using both lm and "by hand", we get the same OLS estimators for beta. These values also match the proposed models in (b).
+
+
 ## h.)
 ```{r h, echo=TRUE}
 h_model = lm(ed~dist+incomehi+incomehi*dist,data=CollDist)
+summary(h_model)
 ```
+
 
 ## i.)
 ```{r i, echo=TRUE}
 
 ```
+
 
 ## j.)
 ```{r j, echo=TRUE}
