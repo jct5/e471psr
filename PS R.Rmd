@@ -1,0 +1,93 @@
+---
+title: "Problem Set R"
+author: "Jackson Taylor"
+date: "November 16, 2017"
+output: html_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+library(foreign)
+```
+
+## a.)
+```{r a, echo=TRUE}
+curve(13.96-.07*x, from=0, to=10, ylab = "y")
+```
+
+## b.)
+```{r b, echo=TRUE}
+par(mfrow=c(1,2))
+curve((13.68-.05*x), from=0, to=10, ylab = "y")
+curve(14.57-.08*x, from=0, to=10, ylab = "y", col= "red")
+```
+
+## c.)
+```{r c, echo=TRUE}
+
+```
+
+## d.)
+```{r d, echo=TRUE}
+CollDist = read.dta("CollegeDistance.dta")
+head(CollDist)
+```
+
+## e.)
+```{r e, echo=TRUE}
+library(ggplot2)
+Y = CollDist$ed
+X1 = CollDist$dist
+X2 = CollDist$incomehi
+
+data = data.frame(Education=Y, Distance=X1, IncomeHi=X2)
+ggplot(data, aes(y=Education, x=Distance, color=IncomeHi)) + geom_point()
+
+plot(ed~dist,data=CollDist)
+curve(13.96-.07*x, ylab = "y", add=TRUE)
+
+plot(ed~dist,data=subset(CollDist, incomehi==0))
+curve((13.68-.05*x),ylab = "y", add=TRUE)
+
+plot(ed~dist,data=subset(CollDist, incomehi==1))
+curve(14.57-.08*x, ylab = "y", col= "red", add=TRUE)
+```
+
+## f.)
+```{r f, echo=TRUE}
+lm(ed~dist, data=CollDist)
+X = as.matrix(cbind(1,CollDist$dist))
+Y = as.matrix(CollDist$ed)
+Beta_hat = solve((t(X)%*%X))%*%t(X)%*%Y
+Beta_hat
+```
+
+## g.)
+```{r g, echo=TRUE}
+lm(ed~dist, data=subset(CollDist,incomehi == 0))
+X = as.matrix(cbind(1,subset(CollDist,incomehi == 0)$dist))
+Y = as.matrix(subset(CollDist,incomehi == 0)$ed)
+Beta_hat = solve((t(X)%*%X))%*%t(X)%*%Y
+Beta_hat
+
+lm(ed~dist, data=subset(CollDist,incomehi == 1))
+X = as.matrix(cbind(1,subset(CollDist,incomehi == 1)$dist))
+Y = as.matrix(subset(CollDist,incomehi == 1)$ed)
+Beta_hat = solve((t(X)%*%X))%*%t(X)%*%Y
+Beta_hat
+```
+
+## h.)
+```{r h, echo=TRUE}
+h_model = lm(ed~dist+incomehi+incomehi*dist,data=CollDist)
+```
+
+## i.)
+```{r i, echo=TRUE}
+
+```
+
+## j.)
+```{r j, echo=TRUE}
+
+```
