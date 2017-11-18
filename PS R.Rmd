@@ -34,9 +34,7 @@ For high income individuals, we expect individuals with 0 years of expeience to 
 
 ## c.)
 
-```{r c, echo=TRUE}
-
-```
+We can combine both function using incomehi = 0 as the base case. So, initially use Y=13.68-.05*X1. If the individual is high income, we see that the intercept changes to 14.57. So (13.68+B2)=14.57. The new equation is Y=13.68-.05*X1+.89*X2. Additional, the marginal effect of X1 changes for high income individuals changes to -.08. So (-.05+B3)=-.08. The combined equation is Y=13.68-.05*X1+.89*X2-.03*X1*X2.
 
 
 ## d.)
@@ -84,7 +82,8 @@ curve(14.57-.08*x, ylab = "y", col= "blue", add=TRUE)
 
 ## f.)
 ```{r f, echo=TRUE}
-lm(ed~dist, data=CollDist)
+initmod= lm(ed~dist, data=CollDist)
+initmod
 X = as.matrix(cbind(1,CollDist$dist))
 Y = as.matrix(CollDist$ed)
 Beta_hat = solve((t(X)%*%X))%*%t(X)%*%Y
@@ -96,13 +95,15 @@ Using both lm and "by hand", we get the same OLS estimator for beta. These value
 
 ## g.)
 ```{r g, echo=TRUE}
-lm(ed~dist, data=subset(CollDist,incomehi == 0))
+lowmod = lm(ed~dist, data=subset(CollDist,incomehi == 0))
+lowmod
 X = as.matrix(cbind(1,subset(CollDist,incomehi == 0)$dist))
 Y = as.matrix(subset(CollDist,incomehi == 0)$ed)
 Beta_hat = solve((t(X)%*%X))%*%t(X)%*%Y
 Beta_hat
 
-lm(ed~dist, data=subset(CollDist,incomehi == 1))
+himod=lm(ed~dist, data=subset(CollDist,incomehi == 1))
+himod
 X = as.matrix(cbind(1,subset(CollDist,incomehi == 1)$dist))
 Y = as.matrix(subset(CollDist,incomehi == 1)$ed)
 Beta_hat = solve((t(X)%*%X))%*%t(X)%*%Y
@@ -121,11 +122,20 @@ summary(h_model)
 
 ## i.)
 ```{r i, echo=TRUE}
-
+summary(initmod)
+summary(lowmod)
+summary(himod)
+summary(h_model)
 ```
+Based on the adjusted R-squared, none of our models seem to explain our values for education very well. This makes sense if we look at any of the scatterplots with the proposed models overlain.
+
+Each of our models match the respective models suggested from (a) through (c).
 
 
 ## j.)
 ```{r j, echo=TRUE}
-
+yhatlow= predict(h_model, newdata=subset(CollDist,incomehi == 0))
+yhathigh= predict(h_model, subset(CollDist,incomehi == 1))
+plot(yhatlow~subset(CollDist,incomehi == 0)$dist, main = "Predicted Years of Education vs Distance from College for Low Income", xlab = "Distance from College (10's of miles)", ylab = "Years of Education", col = "red")
+plot(yhathigh~subset(CollDist,incomehi == 1)$dist, main = "Predicted Years of Education vs Distance from College for High Income", xlab = "Distance from College (10's of miles)", ylab = "Years of Education", col = "blue")
 ```
